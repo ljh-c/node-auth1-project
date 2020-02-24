@@ -4,20 +4,20 @@ function get() {
   return db('users');
 }
 
-function getById(id) {
+function getBy(filter) {
   return db('users')
-    .where({ id })
+    .where(filter)
     .first();
 }
 
 async function add(user) {
   const [id] = await db('users').insert(user);
 
-  return getById(id);
+  return getBy({ id });
 }
 
 module.exports = {
   get,
-  getById,
+  getBy,
   add
 };
