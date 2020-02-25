@@ -1,7 +1,6 @@
 const express = require('express');
 const session = require('express-session');
 const knexStore = require('connect-session-knex')(session);
-
 const knex = require('../data/db-config.js');
 
 const sessionConfig = {
@@ -14,12 +13,12 @@ const sessionConfig = {
     secure: false,  // should be true in production
     httpOnly: true
   },
-  // store: {
-  //   knex,
-  //   tablename: 'sessions',
-  //   createtable: true,
-  //   clearInterval: 1000 * 60 * 5,
-  // }
+  store: new knexStore({
+    knex,
+    tablename: 'sessions',
+    createtable: true,
+    clearInterval: 1000 * 60 * 5,
+  })
 };
 
 module.exports = server => {

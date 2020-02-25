@@ -8,10 +8,14 @@ router.post('/register', async (req, res) => {
   user.password = hash;  
   
   try {
-    res.status(201).json(await Users.add(user));
+    const newUser = await Users.add(user);
+    req.session.loggedIn = true;
+    req.session.username = newUser.username;
+
+    res.status(201).json(newUser);
   }
   catch (err) {
-    res.status(500).json(err);
+    res.status(500).json(err.stack);
   }
 });
 
@@ -36,17 +40,17 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
-  
-  
-  req.session.destroy(err => {
-    if (err) {
-      res.json({ message: 'you can\'t leave' });
-    } else {
-      res.status(200).json({ message: 'bye' });
-    }
-
-
-  });
+  if (req.session.loggedIn) {
+    req.session.destroy(err => {
+      if (err) {
+        res.json({ message: 'error logging out' });
+      } else {
+        res.status(200).json({ message: 'logged out successfully' });
+      }
+    });
+  } else {
+    res.status(200).json({ message: 'you were never logged in, so you are still logged out' });
+  }
 });
-
+  
 module.exports = router;
