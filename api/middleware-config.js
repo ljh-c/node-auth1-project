@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const session = require('express-session');
 const knexStore = require('connect-session-knex')(session);
 const knex = require('../data/db-config.js');
@@ -21,7 +22,20 @@ const sessionConfig = {
   })
 };
 
+const logger = (req, res, next) => {
+  console.log(`${req.method} Request to ${req.originalUrl} \n ${req.path}`);
+  console.dir(req.session.loggedIn);
+
+  if (req.path.includes('restricted') && !req.session.loggedIn) {
+    res.status(401).json({ error: 'Please log in to see this content' });
+  } else {
+    next();
+  }
+}
+
 module.exports = server => {
   server.use(express.json());
+  server.use(cors());
   server.use(session(sessionConfig));
+  server.use('/', logger);
 };
